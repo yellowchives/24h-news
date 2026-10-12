@@ -30,7 +30,7 @@ src/
 ├─ assets/main.css            # 全局样式（原 <style> 抽出）
 ├─ components/
 │  ├─ TopBar.vue              # 顶栏：品牌 + 自动刷新倒计时 + 手动刷新
-│  ├─ ChannelChips.vue        # 栏目筛选（多选，至少保留一个）
+│  ├─ ChannelChips.vue        # 栏目筛选（复选框多选，「全部」全选/全不选切换）
 │  ├─ NewsFeed.vue            # 资讯流列表 + 加载更多
 │  └─ RankList.vue            # 最热要闻排行
 ├─ composables/useNewsFeed.ts # 共享状态与业务逻辑（列表、筛选、倒计时、刷新）

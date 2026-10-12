@@ -27,8 +27,11 @@ export function useNewsFeed() {
   const total = computed(() => list.value.length)
   const hasMore = computed(() => rendered.value < total.value)
   const topRank = computed(() => list.value.slice(0, 10))
-  const allSelected = computed(
-    () => selected.value.length === Object.keys(CHANNELS).length,
+  const channelKeys = Object.keys(CHANNELS)
+  const allSelected = computed(() => selected.value.length === channelKeys.length)
+  /** 部分选中：给「全部」显示半选横杠用 */
+  const someSelected = computed(
+    () => selected.value.length > 0 && !allSelected.value,
   )
   const ringOffset = computed(
     () => CIRCUMFERENCE * (1 - countdown.value / REFRESH_SECONDS),
@@ -56,6 +59,15 @@ export function useNewsFeed() {
 
   /* ---------- 拉取数据 ---------- */
   async function refresh() {
+    // 一个栏目都没选：清空列表，并让进行中的请求结果作废
+    if (selected.value.length === 0) {
+      loadSeq += 1
+      list.value = []
+      rendered.value = PAGE_SIZE
+      loadTime.value = '-'
+      status.value = ''
+      return
+    }
     if (fetching) {
       queued = true
       return
@@ -86,18 +98,17 @@ export function useNewsFeed() {
   function toggleChannel(key: string) {
     const keys = new Set(selected.value)
     if (keys.has(key)) {
-      // 至少保留一个栏目
-      if (keys.size <= 1) return
       keys.delete(key)
     } else {
       keys.add(key)
     }
-    selected.value = Object.keys(CHANNELS).filter((k) => keys.has(k))
+    selected.value = channelKeys.filter((k) => keys.has(k))
     applyFilter()
   }
 
-  function selectAll() {
-    selected.value = Object.keys(CHANNELS)
+  /** 「全部」：全选 <-> 全不选 */
+  function toggleAll() {
+    selected.value = allSelected.value ? [] : [...channelKeys]
     applyFilter()
   }
 
@@ -140,12 +151,13 @@ export function useNewsFeed() {
     hasMore,
     topRank,
     allSelected,
+    someSelected,
     ringOffset,
     // actions
     boot,
     refreshNow,
     toggleChannel,
-    selectAll,
+    toggleAll,
     loadMore,
     openItem,
   }

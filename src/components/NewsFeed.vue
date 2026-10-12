@@ -3,7 +3,8 @@ import { useNewsFeed } from '@/composables/useNewsFeed'
 import { categoryColor } from '@/config'
 import { formatDay, formatTime } from '@/utils/format'
 
-const { visibleItems, total, status, loadTime, hasMore, loadMore, openItem } = useNewsFeed()
+const { visibleItems, total, status, loadTime, hasMore, selected, loadMore, openItem } =
+  useNewsFeed()
 
 function tagStyle(category: string) {
   const color = categoryColor(category)
@@ -47,7 +48,9 @@ function tagStyle(category: string) {
       </li>
     </ul>
 
-    <p v-if="!status && total === 0" class="center-tip">暂无数据，请稍后刷新</p>
+    <p v-if="!status && total === 0" class="center-tip">
+      {{ selected.length === 0 ? '请至少选择一个栏目' : '暂无数据，请稍后刷新' }}
+    </p>
 
     <button v-if="hasMore" class="loadmore" type="button" @click="loadMore">加载更多</button>
   </section>

@@ -226,10 +226,10 @@ button {
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  padding: 4px 13px;
+  padding: 4px 12px;
   font-size: 12px;
   color: var(--dim);
   cursor: pointer;
@@ -238,11 +238,57 @@ button {
   background: transparent;
 }
 
-.chip .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--line2);
+/* ---------- 复选框 ---------- */
+.chip input {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
+  border: 1px solid var(--line2);
+  border-radius: 3px;
+  background: var(--panel);
+  display: grid;
+  place-content: center;
+  cursor: pointer;
+  transition:
+    border-color 0.16s,
+    background 0.16s;
+}
+
+/* 对勾：用 clip-path 画，免图片 */
+.chip input::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  transform: scale(0);
+  transition: transform 0.12s ease-in;
+  background: var(--gold);
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+/* 半选：横杠 */
+.chip input:indeterminate::before {
+  transform: scale(1);
+  clip-path: inset(42% 6%);
+}
+
+.chip input:checked {
+  border-color: var(--gold);
+}
+
+.chip input:checked::before {
+  transform: scale(1);
+}
+
+.chip:hover input {
+  border-color: var(--gold);
+}
+
+.chip input:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 
 .chip:hover {
@@ -255,10 +301,6 @@ button {
   font-weight: 600;
   border-color: var(--gold);
   background: var(--gold);
-}
-
-.chip.on .dot {
-  background: #fff;
 }
 
 /* ---------- layout ---------- */
