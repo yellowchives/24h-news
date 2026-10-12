@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>24小时要闻</title>
+    <style>
+        :root {
+            --bg: #f3f6fb;
+            --bg2: #e9eef7;
+            --panel: #ffffff;
+            --panel2: #f2f5fa;
+            --line: #e1e7f1;
+            --line2: #c6d2e4;
+            --text: #1e2a3d;
+            --dim: #55667f;
+            --faint: #8493a9;
+            --gold: #2f6fd0;
+            --gold-hi: #1c54a8;
+            --red: #d5404f;
+            --shadow: 0 10px 30px rgba(47, 111, 208, .08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font: 14px/1.6 "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(900px 420px at 15% -10%, rgba(47, 111, 208, .07), transparent 60%),
+                radial-gradient(700px 380px at 90% -10%, rgba(90, 150, 215, .08), transparent 60%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none
+        }
+
+        .mono {
+            font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+            font-feature-settings: "tnum"
+        }
+
+        /* ---------- header ---------- */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            padding: 14px 0 12px;
+            background: rgba(243, 246, 251, .88);
+            backdrop-filter: blur(9px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .topbar-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 28px;
+            display: flex;
+            align-items: center;
+            gap: 18px
+        }
+
+        .brand {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            white-space: nowrap
+        }
+
+        .brand .num {
+            font: 800 30px/1 "JetBrains Mono", Consolas, monospace;
+            color: var(--gold);
+            letter-spacing: -2px;
+        }
+
+        .brand .txt {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 3px
+        }
+
+        .brand .live {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--gold-hi);
+        }
+
+        .brand .live::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gold-hi);
+            box-shadow: 0 0 0 0 rgba(47, 111, 208, .5);
+            animation: livepulse 2s infinite;
+        }
+
+        @keyframes livepulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(47, 111, 208, .55)
+            }
+
+            70% {
+                box-shadow: 0 0 0 9px rgba(47, 111, 208, 0)
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(47, 111, 208, 0)
+            }
+        }
+
+        .cd-grid {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 14px
+        }
+
+        .cd {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--dim);
+            font-size: 12px;
+        }
+
+        .cd .ring {
+            position: relative;
+            width: 34px;
+            height: 34px;
+            flex: 0 0 34px
+        }
+
+        .cd .ring svg {
+            position: absolute;
+            inset: 0;
+            transform: rotate(-90deg)
+        }
+
+        .cd .ring .track {
+            fill: none;
+            stroke: var(--line2);
+            stroke-width: 3
+        }
+
+        .cd .ring .bar {
+            fill: none;
+            stroke: var(--gold);
+            stroke-width: 3;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .cd .ring .n {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            font: 600 12px "JetBrains Mono", Consolas, monospace;
+            color: var(--gold-hi);
+        }
+
+        .cd .lbl {
+            line-height: 1.3
+        }
+
+        .cd .lbl b {
+            display: block;
+            color: var(--text);
+            font-size: 12px
+        }
+
+        .cd .lbl span {
+            color: var(--faint);
+            font-size: 11px
+        }
+
+        /* buttons */
+        .btn {
+            border: 1px solid var(--line2);
+            background: transparent;
+            color: var(--text);
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 7px;
+            padding: 7px 16px;
+            transition: border-color .18s, color .18s, background .18s;
+        }
+
+        .btn:hover {
+            border-color: var(--gold);
+            color: var(--gold-hi)
+        }
+
+        .btn.gold {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: #fff;
+            font-weight: 600
+        }
+
+        .btn.gold:hover {
+            background: var(--gold-hi);
+            color: #fff
+        }
+
+        /* ---------- channels ---------- */
+        .chips {
+            max-width: 1180px;
+            margin: 12px auto 0;
+            padding: 0 28px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 4px 13px;
+            font-size: 12px;
+            color: var(--dim);
+            cursor: pointer;
+            user-select: none;
+            transition: all .16s;
+            background: transparent;
+        }
+
+        .chip .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--line2)
+        }
+
+        .chip input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none
+        }
+
+        .chip.on {
+            color: #fff;
+            font-weight: 600;
+            border-color: transparent;
+            background: var(--gold)
+        }
+
+        .chip.on .dot {
+            background: #fff
+        }
+
+        .chip:hover {
+            border-color: var(--line2);
+            color: var(--text)
+        }
+
+        .chip.all.on,
+        .chip.all .dot {
+            background: none
+        }
+
+        .chip[data-k=all].on {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: #fff
+        }
+
+        .chip[data-k=all].on .dot {
+            background: #fff
+        }
+
+        /* ---------- layout ---------- */
+        .stage {
+            max-width: 1180px;
+            margin: 20px auto 60px;
+            padding: 0 28px;
+            display: grid;
+            grid-template-columns: 1fr 332px;
+            gap: 24px
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        /* ---------- news feed ---------- */
+        .feed-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 18px;
+            border-bottom: 1px solid var(--line);
+            background: var(--bg2);
+        }
+
+        .feed-head h2 {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .feed-head h2::before {
+            content: "";
+            width: 3px;
+            height: 14px;
+            background: var(--gold);
+            border-radius: 2px
+        }
+
+        .feed-head .meta {
+            margin-left: auto;
+            font-size: 11px;
+            color: var(--faint);
+            font-family: "JetBrains Mono", Consolas, monospace
+        }
+
+        .feed-head .meta b {
+            color: var(--gold-hi);
+            font-weight: 600
+        }
+
+        #listStatus {
+            font-size: 11px;
+            color: var(--faint);
+            margin-left: auto
+        }
+
+        .timeline {
+            list-style: none;
+            max-height: 78vh;
+            overflow-y: auto
+        }
+
+        .tl {
+            position: relative;
+            padding: 13px 18px 13px 74px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--line);
+            transition: background .15s
+        }
+
+        .tl:hover {
+            background: rgba(47, 111, 208, .04)
+        }
+
+        .tl::before {
+            content: "";
+            position: absolute;
+            left: 52px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(var(--line2), transparent 85%);
+        }
+
+        .tl .t {
+            position: absolute;
+            left: 14px;
+            top: 15px;
+            width: 30px;
+            font: 600 12px/1.1 "JetBrains Mono", Consolas, monospace;
+            color: var(--faint);
+            letter-spacing: .3px;
+        }
+
+        .tl.hot .t {
+            color: var(--gold-hi)
+        }
+
+        .tl .t .d {
+            display: block;
+            font-size: 10px;
+            color: var(--faint);
+            font-weight: 400
+        }
+
+        .tl .badge {
+            display: none;
+        }
+
+        .tl .title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.5;
+            margin-bottom: 3px;
+        }
+
+        .tl:hover .title {
+            color: var(--gold-hi)
+        }
+
+        .tl .title .tag {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            padding: 1px 7px;
+            border-radius: 4px;
+            margin-right: 7px;
+            vertical-align: 2px;
+        }
+
+        .tl .digest {
+            font-size: 12px;
+            color: var(--dim);
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .tl .arr {
+            display: none
+        }
+
+        .loadmore {
+            display: block;
+            width: 100%;
+            border: 0;
+            border-top: 1px solid var(--line);
+            background: var(--bg2);
+            color: var(--dim);
+            font-size: 12px;
+            letter-spacing: 3px;
+            padding: 12px;
+            cursor: pointer;
+            transition: color .18s, background .18s;
+        }
+
+        .loadmore:hover {
+            color: var(--gold-hi);
+            background: var(--panel2)
+        }
+
+        .loadmore.off {
+            opacity: .45;
+            cursor: default
+        }
+
+        .center-tip {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--faint);
+            font-size: 12px;
+            letter-spacing: 1px
+        }
+
+        /* ---------- sidebar ---------- */
+        .side {
+            display: flex;
+            flex-direction: column;
+            gap: 20px
+        }
+
+        .side .panel h3 {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--line);
+            background: var(--bg2);
+        }
+
+        .side .panel h3::before {
+            content: "";
+            width: 3px;
+            height: 13px;
+            background: var(--gold);
+            border-radius: 2px
+        }
+
+        /* ranking */
+        .rank {
+            list-style: none;
+            counter-reset: r
+        }
+
+        .rank li {
+            display: flex;
+            align-items: baseline;
+            gap: 11px;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--line);
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .rank li:hover {
+            background: rgba(47, 111, 208, .04)
+        }
+
+        .rank li .no {
+            font: 700 13px "JetBrains Mono", Consolas, monospace;
+            color: var(--faint);
+            flex: 0 0 20px;
+            text-align: center;
+        }
+
+        .rank li:nth-child(-n+3) .no {
+            color: var(--gold-hi)
+        }
+
+        .rank li .txt {
+            font-size: 12.5px;
+            color: var(--dim);
+            line-height: 1.5;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical
+        }
+
+        .rank li:hover .txt {
+            color: var(--text)
+        }
+
+        .rank li .lk {
+            margin-left: auto;
+            flex: 0 0 auto;
+            font: 500 11px "JetBrains Mono", Consolas, monospace;
+            color: var(--faint);
+            opacity: .7
+        }
+
+        footer {
+            max-width: 1180px;
+            margin: -20px auto 40px;
+            padding: 0 28px;
+            font-size: 11px;
+            color: var(--faint);
+            text-align: center;
+            letter-spacing: 1px
+        }
+
+        /* ---------- scrollbar ---------- */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--line2);
+            border-radius: 4px
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8b8d0
+        }
+
+        @media (max-width:980px) {
+            .chips {
+                padding: 0 16px
+            }
+
+            .stage {
+                grid-template-columns: 1fr;
+                padding: 0 16px
+            }
+
+            .topbar-inner {
+                padding: 0
+            }
+
+            .topbar {
+                padding: 14px 16px 12px
+            }
+
+            .brand .lbl-hide {
+                display: none
+            }
+
+            .cd .lbl span {
+                display: none
+            }
+
+            .timeline {
+                max-height: none
+            }
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: .001s !important;
+                transition-duration: .001s !important
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <span class="num">24h</span>
+                <span class="txt">要闻</span>
+                <span class="live lbl-hide">LIVE</span>
+            </div>
+            <div class="cd-grid">
+                <div class="cd">
+                    <div class="ring">
+                        <svg viewBox="0 0 34 34">
+                            <circle class="track" cx="17" cy="17" r="15"></circle>
+                            <circle class="bar" id="cdBar" cx="17" cy="17" r="15" stroke-dasharray="94.2"
+                                stroke-dashoffset="0">
+                            </circle>
+                        </svg>
+                        <span class="n" id="cdNum">--</span>
+                    </div>
+                    <div class="lbl lbl-hide"><b>自动刷新</b><span>到点拉取最新</span></div>
+                </div>
+                <button class="btn" id="btnRefresh">立即刷新</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="chips" id="chips">
+        <label class="chip" data-k="all"><input type="radio" name="selall" checked><span class="dot"></span>全部</label>
+        <label class="chip" data-k="yaowen"><input type="checkbox" checked><span class="dot"></span>要闻</label>
+        <label class="chip" data-k="caijing"><input type="checkbox" checked><span class="dot"></span>财经</label>
+        <label class="chip" data-k="gupiao"><input type="checkbox" checked><span class="dot"></span>股票</label>
+        <label class="chip" data-k="zhibo"><input type="checkbox" checked><span class="dot"></span>股市直播</label>
+        <label class="chip" data-k="jijin"><input type="checkbox" checked><span class="dot"></span>基金</label>
+        <label class="chip" data-k="qihuo"><input type="checkbox" checked><span class="dot"></span>期货</label>
+        <label class="chip" data-k="huangjin"><input type="checkbox" checked><span class="dot"></span>黄金</label>
+        <label class="chip" data-k="ganggu"><input type="checkbox" checked><span class="dot"></span>港股</label>
+        <label class="chip" data-k="touzi"><input type="checkbox" checked><span class="dot"></span>投资机会</label>
+    </nav>
+
+    <div class="stage">
+        <section class="panel">
+            <div class="feed-head">
+                <h2>资讯流</h2>
+                <span class="meta"><b id="cntN">0</b> 条 · <span id="loadT">-</span></span>
+            </div>
+            <span id="listStatus"></span>
+            <ul class="timeline" id="tlList"></ul>
+            <button class="loadmore" id="btnMore">加载更多</button>
+        </section>
+
+        <aside class="side">
+            <div class="panel">
+                <h3>最热要闻排行</h3>
+                <ul class="rank" id="rankList"></ul>
+            </div>
+        </aside>
+    </div>
+
+    <footer>24小时要闻 · 数据来自同花顺公开接口 · 点击任意标题可打开原文</footer>
+
+    <script>
+        (() => {
+            "use strict";
+
+            /* ---------- 配置 ---------- */
+            const CAT = {
+                yaowen: "要闻", caijing: "财经", gupiao: "股票", zhibo: "股市直播",
+                jijin: "基金", qihuo: "期货", huangjin: "黄金", ganggu: "港股", touzi: "投资机会"
+            };
+            const NEWSBASE = "http://stock.10jqka.com.cn/thsgd/";
+            const PAGE = 20;
+            const REFRESH = 60;
+
+            const $ = s => document.querySelector(s);
+            const $$ = s => Array.from(document.querySelectorAll(s));
+
+            /* ---------- 状态 ---------- */
+            let pool = [];            // 原始聚合数据
+            let all = [];             // 去重排序后的全量
+            let rendered = PAGE;      // 已渲染条数
+            let cd = REFRESH;         // 倒计时
+            let cdTimer = null;
+            let loadSeq = 0;
+            let fetching = false;     // 是否正在拉取（串行化刷新）
+            let queued = false;       // 拉取期间又有刷新请求则排队
+
+            const fmtTime = d => (d.length > 10 ? d.split(" ")[1] : d);
+            const fmtDay = d => (d.length > 10 ? d.slice(5, 10) : d);
+            const sortKey = s => parseInt(s.replace(/[\/: ]/g, ""), 10);
+
+            const el = {
+                cnt: $("#cntN"), loadT: $("#loadT"), list: $("#tlList"), more: $("#btnMore"),
+                cdNum: $("#cdNum"), cdBar: $("#cdBar"), status: $("#listStatus"),
+                rank: $("#rankList")
+            };
+
+            /* ---------- JSONP 加载 ---------- */
+            function loadJsonp(url, cbName, cb, onErr) {
+                const s = document.createElement("script");
+                const done = () => { if (s.parentNode) s.parentNode.removeChild(s); };
+                window[cbName] = res => { try { cb(res); } finally { done(); } };
+                s.charset = url.indexOf("thsgd/") > -1 ? "gbk" : "utf-8";
+                s.src = url + "?t=" + Date.now();
+                s.onerror = () => { done(); onErr && onErr(); };
+                document.head.appendChild(s);
+            }
+
+            function loadNewsChannels(chs) {
+                return new Promise(resolve => {
+                    if (!chs.length) { resolve([]); return; }
+                    const items = [];
+                    const pending = new Set(chs);
+                    let settled = false;
+                    window.ths_rss_news_callback = d => {
+                        (d && d.item || []).forEach(it => items.push(it));
+                    };
+                    const finish = () => {
+                        if (settled) return;
+                        settled = true;
+                        resolve(items);
+                    };
+                    const watchScript = (s, ch) => {
+                        const done = () => { pending.delete(ch); if (!pending.size) finish(); };
+                        s.onload = done; s.onerror = done;
+                    };
+                    chs.forEach(ch => {
+                        const s = document.createElement("script");
+                        s.charset = "gbk";
+                        s.src = NEWSBASE + ch + ".js?t=" + Date.now();
+                        watchScript(s, ch);
+                        document.head.appendChild(s);
+                    });
+                    setTimeout(finish, 5000);
+                });
+            }
+
+            /* ---------- 数据处理 ---------- */
+            function process(chs) {
+                const before = Date.now();
+                el.status.textContent = "正在拉取…";
+                return loadNewsChannels(chs).then(items => {
+                    const seen = {};
+                    // 先按通道数据源聚合，再按 seq 去重
+                    const unique = [];
+                    items.forEach(it => {
+                        if (seen[it.seq]) return;
+                        seen[it.seq] = 1;
+                        unique.push(it);
+                    });
+                    unique.sort((a, b) => sortKey(b.pubDate) - sortKey(a.pubDate));
+                    pool = unique;
+                    all = unique;
+                    rendered = PAGE;
+                    return unique;
+                }).then(unique => {
+                    el.loadT.textContent = ((Date.now() - before) / 1000).toFixed(2) + "s";
+                    el.status.textContent = "";
+                });
+            }
+
+            /* ---------- 渲染 ---------- */
+            function catColor(k) {
+                const map = { 要闻: "#2f6fd0", 财经: "#1f9d63", 股票: "#d04048", 股市直播: "#8a54c8", 基金: "#0e9ab8", 期货: "#c07a1f", 黄金: "#b8911a", 港股: "#189aa0", 投资机会: "#c54d7a" };
+                return map[k] || "#7a86a0";
+            }
+
+            function itemHtml(it, i) {
+                const hot = i < 10;
+                const day = fmtDay(it.pubDate), time = fmtTime(it.pubDate);
+                return `<li class="tl${hot ? " hot" : ""}" data-url="${it.url || ""}">
+      <span class="t">${time}<span class="d">${day}</span></span>
+      <div class="badge"></div>
+      <div class="title">${it.category ? `<span class="tag" style="color:${catColor(it.category)};border:1px solid ${catColor(it.category)}55;background:${catColor(it.category)}18">${escapeHtml(it.category)}</span>` : ""}${escapeHtml(it.title || "")}</div>
+      ${it.content ? `<div class="digest">${escapeHtml(it.content)}</div>` : ""}
+    </li>`;
+            }
+
+            function escapeHtml(str) {
+                return String(str).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+            }
+
+            function renderFeed() {
+                const list = all.slice(0, rendered);
+                el.list.innerHTML = list.map(itemHtml).join("");
+                el.cnt.textContent = all.length;
+                el.more.classList.toggle("off", rendered >= all.length);
+                el.more.style.display = (rendered < all.length) ? "" : "none";
+                renderRank();
+            }
+
+            function renderRank() {
+                const top = all.slice(0, 10);
+                el.rank.innerHTML = top.map((it, i) => `
+      <li data-url="${it.url || ""}">
+        <span class="no">${i + 1}</span>
+        <span class="txt">${escapeHtml(it.title || "")}</span>
+        <span class="lk">${it.like != null ? it.like : ""}</span>
+      </li>`).join("");
+            }
+
+            function startCount() {
+                stopCount();
+                cd = REFRESH;
+                paintCd();
+                cdTimer = setInterval(() => {
+                    cd--;
+                    paintCd();
+                    if (cd <= 0) { startCount(); refresh(); }
+                }, 1000);
+            }
+            function stopCount() { if (cdTimer) { clearInterval(cdTimer); cdTimer = null; } }
+            function paintCd() {
+                el.cdNum.textContent = cd;
+                const c = 94.2;
+                el.cdBar.style.strokeDashoffset = c * (1 - cd / REFRESH);
+            }
+
+            function getSel() {
+                const on = $$("#chips .chip[data-k]").filter(ch => ch.classList.contains("on"));
+                const ks = on.map(ch => ch.dataset.k).filter(k => k !== "all");
+                return ks;
+            }
+
+            function refresh() {
+                if (fetching) { queued = true; return; }
+                fetching = true;
+                const seq = ++loadSeq;
+                process(getSel()).then(() => {
+                    if (seq === loadSeq) renderFeed();
+                }).catch(() => { el.status.textContent = "拉取失败，稍后重试"; })
+                    .finally(() => {
+                        fetching = false;
+                        if (queued) { queued = false; refresh(); }
+                    });
+            }
+
+            /* ---------- 栏目交互 ---------- */
+            function syncAllChip() {
+                const allChip = document.querySelector("#chips .chip[data-k=all]");
+                const allSel = $$("#chips .chip[data-k]").every(ch => {
+                    return ch.dataset.k === "all" || ch.classList.contains("on");
+                });
+                allChip.classList.toggle("on", allSel);
+            }
+            $("#chips").addEventListener("click", e => {
+                const lab = e.target.closest(".chip");
+                if (!lab) return;
+                e.preventDefault();
+                const k = lab.dataset.k;
+                if (k === "all") {
+                    const willSelect = !lab.classList.contains("on");
+                    $$("#chips .chip[data-k]").forEach(ch => ch.classList.toggle("on", willSelect));
+                } else {
+                    lab.classList.toggle("on");
+                    const anyOn = getSel().length > 0;
+                    if (!anyOn) {
+                        $$("#chips .chip[data-k]").forEach(ch => ch.classList.add("on"));
+                    }
+                    syncAllChip();
+                }
+                startCount();
+                refresh();
+            });
+
+            /* ---------- 列表点击 / 加载更多 ---------- */
+            el.list.addEventListener("click", e => {
+                const li = e.target.closest(".tl");
+                if (!li || !li.dataset.url) return;
+                window.open(li.dataset.url, "_blank", "noopener");
+            });
+            el.rank.addEventListener("click", e => {
+                const li = e.target.closest("li");
+                if (!li || !li.dataset.url) return;
+                window.open(li.dataset.url, "_blank", "noopener");
+            });
+            el.more.addEventListener("click", () => {
+                if (rendered >= all.length) return;
+                rendered += PAGE;
+                renderFeed();
+            });
+            $("#btnRefresh").addEventListener("click", () => { startCount(); refresh(); });
+
+            /* ---------- 启动 ---------- */
+            function boot() {
+                $$("#chips .chip").forEach(ch => {
+                    if (ch.dataset.k === "all" ||
+                        Object.prototype.hasOwnProperty.call(CAT, ch.dataset.k)) ch.classList.add("on");
+                });
+                startCount();
+                refresh();
+            }
+            boot();
+        })();
+    </script>
+</body>
+
+</html>
